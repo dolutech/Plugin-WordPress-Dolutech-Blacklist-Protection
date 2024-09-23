@@ -1,72 +1,72 @@
-=== Dolutech Blacklist Protection ===
+=== Dolutech Blacklist Security ===
 Contributors: Lucas Catão de Moraes
 Donate link: https://dolutech.com
-Tags: security, blacklist, ip blocking, firewall
+Tags: security, blacklist, brute-force, ddns, protection
 Requires at least: 6.6.0
 Tested up to: 6.6.0
 Requires PHP: 8.3
-Stable tag: 0.0.1
+Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Dolutech Blacklist Protection is a security plugin that blocks IPs listed on Dolutech's blacklist from accessing your website. It also allows you to report IPs to Dolutech for further action.
+Dolutech Blacklist Security é um plugin avançado que bloqueia IPs maliciosos usando uma blacklist atualizada pela Dolutech. Também oferece proteção contra ataques de força bruta e suporte para DDNS.
 
-== Description ==
+== Descrição ==
 
-Dolutech Blacklist Protection is a WordPress plugin designed to enhance your website's security by blocking access from malicious IPs listed on Dolutech's regularly updated blacklist. The blacklist is updated automatically on a daily basis and can also be manually updated at any time. 
+O plugin **Dolutech Blacklist Security** ajuda a proteger o seu site ao bloquear IPs maliciosos com base em uma blacklist atualizada diariamente pela Dolutech. Ele também oferece funcionalidades de proteção contra ataques de força bruta, gerenciando tentativas de login falhas, e permite que o administrador defina IPs e DDNS na whitelist para que nunca sejam bloqueados.
 
-The plugin provides the following features:
-- Automatically blocks access to your website for any IP address listed in Dolutech's blacklist.
-- Allows manual addition and removal of IPs from the blacklist.
-- Offers an option to report suspicious IPs directly to Dolutech for further investigation.
-- Maintains a log of all actions and offers the ability to download logs as a .txt file.
-- Option to send daily logs via email.
-- Built with security in mind, following WordPress security best practices.
+### Funcionalidades principais:
+- **Blacklist automática e atualizada diariamente**: O plugin baixa automaticamente a lista de IPs maliciosos e bloqueia acessos indesejados.
+- **Proteção contra ataques de força bruta**: Monitora tentativas de login falhas e bloqueia temporariamente IPs suspeitos.
+- **Whitelist de IPs e suporte para DDNS**: Permite adicionar seu próprio IP ou DDNS à whitelist para evitar bloqueios.
+- **Logs de segurança**: Registra eventos como tentativas de login falhas e IPs bloqueados, com a opção de enviar os logs por email.
+- **Configuração simples**: Interface amigável e fácil de configurar.
+- **Reportar IPs suspeitos**: Possibilidade de reportar IPs diretamente para a equipe da Dolutech.
 
-== Installation ==
+### Configurações:
+- Definir o número de tentativas de login antes do bloqueio por força bruta.
+- Adicionar/remover IPs à blacklist ou whitelist.
+- Adicionar DDNS para atualizações automáticas de IP.
+- Enviar logs por email ou baixar em formato TXT.
+- Bloquear permanentemente IPs suspeitos diretamente da página de logs.
 
-1. Upload the plugin files to the `/wp-content/plugins/dolutech-blacklist-protection` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Go to "Dolutech Blacklist" in your WordPress admin panel to configure the plugin.
-4. Customize settings such as activating or deactivating the blacklist, forcing updates, and managing IPs.
+== Instalação ==
 
-== Frequently Asked Questions ==
+1. Faça o upload dos arquivos do plugin para o diretório `/wp-content/plugins/`.
+2. Ative o plugin através do menu 'Plugins' no WordPress.
+3. Acesse o menu "Dolutech Security" no painel de administração para configurar as opções de blacklist e proteção contra força bruta.
 
-= How does the blacklist update? =
-The blacklist updates automatically every day from Dolutech's maintained blacklist. You can also force an update manually from the plugin settings.
+== Atualização Automática da Blacklist ==
+O plugin faz o download e atualiza automaticamente a blacklist todos os dias. Se necessário, a atualização pode ser forçada manualmente através da interface de administração.
 
-= Can I add or remove IPs manually? =
-Yes, you can add IPs to the blacklist manually or remove IPs if you believe they were added by mistake.
+== Proteção contra Força Bruta ==
+Ative a proteção contra força bruta para monitorar tentativas de login suspeitas. IPs que excederem o número de tentativas permitidas serão bloqueados temporariamente. Esses IPs também podem ser adicionados permanentemente à blacklist.
 
-= Can I report a suspicious IP to Dolutech? =
-Yes, the plugin provides an option to report any IP you add to the blacklist. The report is sent to Dolutech via email.
+== Logs e Relatórios ==
+O plugin mantém logs de eventos de segurança que podem ser visualizados na interface de administração. Você pode baixar os logs ou configurá-los para serem enviados por email diariamente.
 
-= Is the plugin secure? =
-Yes, the plugin follows WordPress security best practices, including sanitizing user inputs and protecting against CSRF attacks.
+== Suporte para DDNS ==
+Permite adicionar um endereço DDNS para que o plugin atualize automaticamente o IP na whitelist diariamente.
 
-= Does the plugin work with other security plugins? =
-Yes, Dolutech Blacklist Protection is designed to complement other security plugins. It can be used alongside firewalls, login security, and other WordPress security solutions.
+== Exemplo de uso ==
+- Proteja seu site WordPress de IPs maliciosos conhecidos com uma blacklist constantemente atualizada.
+- Evite que bots tentem descobrir suas credenciais de login ativando a proteção contra força bruta.
+- Use logs detalhados para monitorar eventos de segurança e receber notificações por email.
 
-== Screenshots ==
+== Licença ==
 
-1. Plugin Settings Page: View and manage the status of the blacklist, update manually, and add/remove IPs.
-2. Logs Page: View logs of blocked IPs and other actions, and download logs in .txt format.
+Este plugin está licenciado sob a GNU General Public License v2.0 ou superior.
 
 == Changelog ==
 
-= 0.0.1 =
-* Initial release of the plugin.
-* Automatically block IPs listed on the Dolutech blacklist.
-* Option to manually add or remove IPs.
-* Force blacklist update functionality.
-* Report IPs to Dolutech for further action.
-* Logging and daily email notifications for admins.
+= 0.1.0 =
+* Primeira versão estável do plugin.
+* Implementação da blacklist automática com atualizações diárias.
+* Proteção contra ataques de força bruta.
+* Suporte para whitelist de IPs e DDNS.
+* Funções de logs com envio por email.
+* Reporte de IPs suspeitos para a equipe Dolutech.
 
-== Upgrade Notice ==
+== Notas Finais ==
 
-= 0.0.1 =
-Initial release of Dolutech Blacklist Protection.
-
-== License ==
-
-This plugin is licensed under the GPLv2 or later.
+Para mais informações ou para relatar problemas de segurança, entre em contato com a Dolutech em https://dolutech.com ou envie um email para abuse@dolutech.com.
