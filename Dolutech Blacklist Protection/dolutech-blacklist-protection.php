@@ -702,10 +702,23 @@ class Dolutech_Blacklist_Security {
             return;
         }
 
-        $ips = explode("\n", $body);
-        $ips = array_filter(array_map('trim', $ips), function($ip) {
-            return filter_var($ip, FILTER_VALIDATE_IP);
-        });
+        $lines = explode("\n", $body);
+        $ips = [];
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            // Ignora linhas vazias ou comentários
+            if (empty($line) || strpos($line, '#') === 0) {
+                continue;
+            }
+
+            // Valida se é um IP válido (IPv4 ou IPv6)
+            if (filter_var($line, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6)) {
+                $ips[] = $line;
+            } else {
+                $this->log_event('IP inválido ignorado na blacklist: ' . $line);
+            }
+        }
 
         // Remove duplicatas e reindexa o array
         $ips = array_values(array_unique($ips));
@@ -799,7 +812,7 @@ class Dolutech_Blacklist_Security {
             $ip_list = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
             foreach ($ip_list as $ip_addr) {
                 $ip_addr = trim($ip_addr);
-                if (filter_var($ip_addr, FILTER_VALIDATE_IP)) {
+                if (filter_var($ip_addr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6)) {
                     $ip = $ip_addr;
                     break;
                 }
@@ -823,7 +836,7 @@ class Dolutech_Blacklist_Security {
     public function add_to_whitelist($ip) {
         $whitelisted_ips = get_option($this->whitelist_option, []);
         $ip = trim($ip);
-        if (filter_var($ip, FILTER_VALIDATE_IP) && !in_array($ip, $whitelisted_ips)) {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6) && !in_array($ip, $whitelisted_ips)) {
             $whitelisted_ips[] = $ip;
             update_option($this->whitelist_option, $whitelisted_ips);
             $this->log_event('IP adicionado à whitelist: ' . $ip);
@@ -845,8 +858,9 @@ class Dolutech_Blacklist_Security {
     /*** Funções de DDNS ***/
     public function add_ddns($ddns) {
         $ddns = trim($ddns);
-        if (filter_var(gethostbyname($ddns), FILTER_VALIDATE_IP)) {
-            $ip = gethostbyname($ddns);
+        $resolved_ip = gethostbyname($ddns);
+        if ($resolved_ip !== $ddns && filter_var($resolved_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6)) {
+            $ip = $resolved_ip;
             $settings = [
                 'ddns' => $ddns,
                 'ip' => $ip,
@@ -872,12 +886,14 @@ class Dolutech_Blacklist_Security {
         $settings = get_option($this->ddns_option, []);
         if (!empty($settings)) {
             $new_ip = gethostbyname($settings['ddns']);
-            if ($new_ip !== $settings['ip']) {
-                $this->remove_from_whitelist($settings['ip']);
-                $this->add_to_whitelist($new_ip);
-                $settings['ip'] = $new_ip;
-                update_option($this->ddns_option, $settings);
-                $this->log_event('IP do DDNS atualizado: ' . $settings['ddns'] . ' (Novo IP: ' . $new_ip . ')');
+            if ($new_ip !== $settings['ddns'] && filter_var($new_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6)) {
+                if ($new_ip !== $settings['ip']) {
+                    $this->remove_from_whitelist($settings['ip']);
+                    $this->add_to_whitelist($new_ip);
+                    $settings['ip'] = $new_ip;
+                    update_option($this->ddns_option, $settings);
+                    $this->log_event('IP do DDNS atualizado: ' . $settings['ddns'] . ' (Novo IP: ' . $new_ip . ')');
+                }
             }
         }
     }
@@ -992,7 +1008,7 @@ class Dolutech_Blacklist_Security {
     public function add_ip($ip) {
         $blacklisted_ips = get_option($this->blacklist_option, []);
         $ip = trim($ip);
-        if (filter_var($ip, FILTER_VALIDATE_IP) && !in_array($ip, $blacklisted_ips)) {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6) && !in_array($ip, $blacklisted_ips)) {
             $blacklisted_ips[] = $ip;
             update_option($this->blacklist_option, array_values($blacklisted_ips));
             $this->log_event('IP adicionado à blacklist: ' . $ip);
@@ -1005,7 +1021,7 @@ class Dolutech_Blacklist_Security {
     public function remove_ip($ip) {
         $blacklisted_ips = get_option($this->blacklist_option, []);
         $ip = trim($ip);
-        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6)) {
             $key = array_search($ip, $blacklisted_ips);
             if ($key !== false) {
                 unset($blacklisted_ips[$key]);
