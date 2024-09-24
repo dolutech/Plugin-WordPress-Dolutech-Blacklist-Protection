@@ -192,6 +192,16 @@ class Dolutech_Blacklist_Security {
             }
         }
 
+        // Processa whitelist removal
+        if (isset($_POST['dolutech_remove_whitelist']) && check_admin_referer('dolutech_remove_whitelist_action', 'dolutech_remove_whitelist_nonce')) {
+            $ip = sanitize_text_field($_POST['dolutech_whitelist_ip']);
+            if ($this->remove_from_whitelist($ip)) {
+                $messages[] = '<div class="alert alert-success">Seu IP foi removido da whitelist com sucesso.</div>';
+            } else {
+                $messages[] = '<div class="alert alert-danger">Falha ao remover o IP da whitelist. Verifique se o IP está listado.</div>';
+            }
+        }
+
         // Processa DDNS addition
         if (isset($_POST['dolutech_add_ddns']) && check_admin_referer('dolutech_add_ddns_action', 'dolutech_add_ddns_nonce')) {
             $ddns = sanitize_text_field($_POST['dolutech_ddns']);
@@ -265,6 +275,12 @@ class Dolutech_Blacklist_Security {
                         <?php if (!empty($whitelisted_ips)) : ?>
                             <p>Seu IP está na whitelist e nunca será bloqueado.</p>
                             <p><strong>IP:</strong> <?php echo esc_html($whitelisted_ips[0]); ?></p>
+                            <!-- Botão para remover o IP da whitelist -->
+                            <form method="post" style="display:inline;">
+                                <?php wp_nonce_field('dolutech_remove_whitelist_action', 'dolutech_remove_whitelist_nonce'); ?>
+                                <input type="hidden" name="dolutech_whitelist_ip" value="<?php echo esc_attr($whitelisted_ips[0]); ?>">
+                                <input type="submit" name="dolutech_remove_whitelist" value="Remover da Whitelist" class="btn btn-danger">
+                            </form>
                         <?php else : ?>
                             <p>Você pode adicionar seu IP para nunca ser bloqueado. Isso é recomendado apenas se você tiver IP fixo.</p>
                             <form method="post">
@@ -429,7 +445,7 @@ class Dolutech_Blacklist_Security {
                                 <label class="custom-control-label" for="dolutech_brute_force_enabled">Ativar proteção contra força bruta</label>
                             </div>
                             <div class="form-group">
-                                <label for="dolutech_brute_force_attempts">Número de tentativas antes do bloqueio:</label>
+                                <label for="dolutech_brute_force_attempts">Número de tentativas de login antes do bloqueio:</label>
                                 <input type="number" name="dolutech_brute_force_attempts" id="dolutech_brute_force_attempts" class="form-control" value="<?php echo esc_attr($brute_force_settings['attempts']); ?>" min="1" required>
                             </div>
                             <div class="form-group">
@@ -847,12 +863,15 @@ class Dolutech_Blacklist_Security {
 
     public function remove_from_whitelist($ip) {
         $whitelisted_ips = get_option($this->whitelist_option, []);
+        $ip = trim($ip);
         $key = array_search($ip, $whitelisted_ips);
         if ($key !== false) {
             unset($whitelisted_ips[$key]);
             update_option($this->whitelist_option, array_values($whitelisted_ips));
             $this->log_event('IP removido da whitelist: ' . $ip);
+            return true;
         }
+        return false;
     }
 
     /*** Funções de DDNS ***/
@@ -879,7 +898,9 @@ class Dolutech_Blacklist_Security {
             $this->remove_from_whitelist($settings['ip']);
             delete_option($this->ddns_option);
             $this->log_event('DDNS removido: ' . $settings['ddns']);
+            return true;
         }
+        return false;
     }
 
     public function update_ddns_ip() {
